@@ -1,0 +1,64 @@
+{
+  "schema": "minimal.ai_agent.tools/v1",
+  "tools": [
+    {
+      "name": "echo",
+      "description": "Return the supplied text.",
+      "parameters": {
+        "type": "object",
+        "properties": {"text": {"type": "string"}},
+        "required": ["text"],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "list_files",
+      "description": "List files and directories recursively inside the isolated workspace.",
+      "parameters": {
+        "type": "object",
+        "properties": {"path": {"type": "string", "description": "Workspace-relative directory; defaults to ."}},
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "read_text_file",
+      "description": "Read one UTF-8 text file inside the isolated workspace.",
+      "parameters": {
+        "type": "object",
+        "properties": {"path": {"type": "string", "description": "Workspace-relative file path"}},
+        "required": ["path"],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "write_text_file",
+      "description": "Create or replace one UTF-8 text file inside the isolated workspace. Parent directories are created automatically.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "path": {"type": "string", "description": "Workspace-relative file path"},
+          "content": {"type": "string", "description": "Complete file content"}
+        },
+        "required": ["path", "content"],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "run_python",
+      "description": "Run a Python file from the workspace, or run python -m unittest. Returns stdout, stderr, and return code.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "arguments": {
+            "type": "array",
+            "items": {"type": "string"},
+            "description": "For example [\"tool.py\", \"input.txt\"] or [\"-m\", \"unittest\", \"discover\", \"-s\", \"tests\", \"-v\"]"
+          },
+          "timeout_s": {"type": "integer", "minimum": 1, "maximum": 60}
+        },
+        "required": ["arguments"],
+        "additionalProperties": false
+      }
+    }
+  ]
+}

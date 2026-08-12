@@ -1,0 +1,10 @@
+{
+  "schema": "minimal.ai_agent.config/v1",
+  "base_url": "https://api.openai.com",
+  "api_key": "",
+  "model": "gpt-5.6",
+  "reasoning_effort": "medium",
+  "timeout_s": 120,
+  "max_tool_rounds": 12,
+  "max_output_tokens": 4096
+}
