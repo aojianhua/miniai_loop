@@ -1,5 +1,4 @@
 config.local.json
-fixed_upstream.py
 workspaces/
 __pycache__/
 *.py[cod]

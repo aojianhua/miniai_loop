@@ -4,12 +4,14 @@ from __future__ import annotations
 
 import copy
 import json
-import os
 import urllib.error
 import urllib.request
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Callable, Protocol
+
+from fixed_upstream import API_KEY, BASE_URL, MODEL, REASONING_EFFORT
+
 
 ROOT = Path(__file__).resolve().parent
 DEFAULT_CONFIG = ROOT / "config.local.json"
@@ -63,28 +65,13 @@ def load_config(path: Path | None = None) -> AgentConfig:
         raise AgentError(f"LLM config does not exist: {config_path}")
 
     return AgentConfig(
-        base_url=str(
-            raw.get("base_url")
-            or os.environ.get("AI_AGENT_BASE_URL")
-            or os.environ.get("OPENAI_BASE_URL")
-            or "https://api.openai.com"
-        ).rstrip("/"),
-        api_key=str(
-            raw.get("api_key")
-            or os.environ.get("AI_AGENT_API_KEY")
-            or os.environ.get("OPENAI_API_KEY")
-            or ""
-        ),
-        model=str(
-            raw.get("model")
-            or os.environ.get("AI_AGENT_MODEL")
-            or os.environ.get("OPENAI_MODEL")
-            or "gpt-5.6"
-        ),
+        base_url=BASE_URL.rstrip("/"),
+        api_key=API_KEY,
+        model=MODEL,
         timeout_s=float(raw.get("timeout_s", 120)),
         max_tool_rounds=int(raw.get("max_tool_rounds", 12)),
         max_output_tokens=int(raw.get("max_output_tokens", 4096)),
-        reasoning_effort=str(raw.get("reasoning_effort", "medium")),
+        reasoning_effort=REASONING_EFFORT,
     )
 
 

@@ -27,13 +27,13 @@
 
 ## 运行
 
-从 `config.example.json` 创建同目录的 `config.local.json`，填写自己的 `base_url`、`api_key` 和 `model`，然后运行：
+上游连接、共享限额 key、模型和推理强度固定在 `fixed_upstream.py` 中，无需创建配置文件。直接运行：
 
 ```powershell
 .\agent.cmd --workspace demo "创建并测试一个 Python 小工具"
 ```
 
-也可以通过 `AI_AGENT_API_KEY`、`AI_AGENT_BASE_URL` 和 `AI_AGENT_MODEL` 环境变量配置；同时兼容 `OPENAI_API_KEY`、`OPENAI_BASE_URL` 和 `OPENAI_MODEL`。`--show-config` 只显示脱敏后的生效配置，不输出 API key。
+`config.local.json` 只用于覆盖超时、最大工具轮数和最大输出 token。`--show-config` 只显示脱敏后的生效配置，不输出 API key。
 
 ## 增加工具
 
