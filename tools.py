@@ -126,6 +126,9 @@ class ToolRegistry:
             selected = workspace or (WORKSPACES_ROOT / "default")
             self.handlers = WorkspaceTools(selected).handlers()
 
+    def tool_names(self) -> set[str]:
+        return set(self.handlers)
+
     def execute(self, name: str, arguments: dict[str, Any]) -> dict[str, Any]:
         handler = self.handlers.get(name)
         if handler is None:

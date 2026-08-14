@@ -10,7 +10,14 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from agent_runtime import AgentConfig, AgentError, load_function_tools, responses_url, run_agent  # noqa: E402
+from agent_runtime import (  # noqa: E402
+    AgentConfig,
+    AgentError,
+    load_function_tools,
+    responses_url,
+    run_agent,
+    validate_function_tools,
+)
 from tools import ToolRegistry, WORKSPACES_ROOT, WorkspaceTools  # noqa: E402
 
 
@@ -65,6 +72,22 @@ class MinimalAgentTests(unittest.TestCase):
             [tool["name"] for tool in tools],
         )
         self.assertEqual("function", tools[0]["type"])
+
+    def test_default_tool_contract_matches_registered_handlers(self) -> None:
+        self.assertEqual(
+            {tool["name"] for tool in load_function_tools()},
+            ToolRegistry().tool_names(),
+        )
+
+    def test_function_tools_must_match_registered_handlers(self) -> None:
+        registry = ToolRegistry({"echo": lambda text: {"text": text}})
+        validate_function_tools([{"name": "echo"}], registry)
+
+        with self.assertRaisesRegex(AgentError, "no handler for contract tools: missing"):
+            validate_function_tools([{"name": "echo"}, {"name": "missing"}], registry)
+
+        with self.assertRaisesRegex(AgentError, "no contract for registered handlers: echo"):
+            validate_function_tools([], registry)
 
     def test_registry_dispatches_and_rejects_unknown_tools(self) -> None:
         registry = ToolRegistry({"add": lambda left, right: left + right})

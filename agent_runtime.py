@@ -31,6 +31,39 @@ class ToolExecutor(Protocol):
     def execute(self, name: str, arguments: dict[str, Any]) -> Any: ...
 
 
+def executor_tool_names(tool_executor: ToolExecutor) -> set[str] | None:
+    tool_names = getattr(tool_executor, "tool_names", None)
+    if callable(tool_names):
+        names = tool_names()
+        if isinstance(names, set):
+            return {str(name) for name in names}
+        if isinstance(names, (list, tuple, frozenset)):
+            return {str(name) for name in names}
+
+    handlers = getattr(tool_executor, "handlers", None)
+    if isinstance(handlers, dict):
+        return {str(name) for name in handlers}
+    return None
+
+
+def validate_function_tools(function_tools: list[dict[str, Any]], tool_executor: ToolExecutor) -> None:
+    available = executor_tool_names(tool_executor)
+    if available is None:
+        return
+
+    exposed = {str(tool.get("name") or "") for tool in function_tools}
+    exposed.discard("")
+    missing_handlers = sorted(exposed - available)
+    missing_contracts = sorted(available - exposed)
+    if missing_handlers or missing_contracts:
+        details = []
+        if missing_handlers:
+            details.append(f"no handler for contract tools: {', '.join(missing_handlers)}")
+        if missing_contracts:
+            details.append(f"no contract for registered handlers: {', '.join(missing_contracts)}")
+        raise AgentError("Tool contract and registry mismatch: " + "; ".join(details))
+
+
 @dataclass(frozen=True)
 class AgentConfig:
     base_url: str
@@ -180,6 +213,7 @@ def run_agent(
 
     instructions = system_prompt if system_prompt is not None else DEFAULT_PROMPT.read_text(encoding="utf-8")
     function_tools = copy.deepcopy(tools) if tools is not None else load_function_tools()
+    validate_function_tools(function_tools, tool_executor)
     responses = transport or HttpResponsesTransport(config)
     input_items: list[dict[str, Any]] = [{"role": "user", "content": user_prompt.strip()}]
 
